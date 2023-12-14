@@ -1,31 +1,17 @@
--- creating a stored procedure ComputeAverageWeightedScoreForUser
--- that computes and store the average weighted score for a student
-
-DROP PROCEDURE IF EXISTS ComputeAverageWeightedScoreForUser;
-
-DELIMITER //
-
-CREATE PROCEDURE ComputeAverageWeightedScoreForUser(user_id INT)
+-- creating a function SafeDiv that divides
+-- (and returns) the first by the second
+-- number or returns 0 if the second number
+-- is equal to 0.
+DROP FUNCTION IF EXISTS SafeDiv;
+DELIMITER $$
+CREATE FUNCTION SafeDiv (a INT, b INT)
+RETURNS FLOAT DETERMINISTIC
 BEGIN
-  DECLARE tot_weighted_score INT DEFAULT 0;
-  DECLARE tot_weight INT DEFAULT 0;
+    DECLARE result FLOAT DEFAULT 0;
 
-  SELECT SUM(corrections.score * projects.weight) INTO tot_weighted_score
-  FROM corrections 
-  INNER JOIN projects ON corrections.project_id = projects.id
-  WHERE corrections.user_id = user_id;
-
-  SELECT SUM(projects.weight) INTO tot_weight FROM corrections
-  INNER JOIN projects ON corrections.project_id = projects.id
-  WHERE corrections.user_id = user_id;
-
-  IF tot_weight = 0 THEN
-    UPDATE users
-    SET users.average_score = 0
-    WHERE users.id = user_id;
-  ELSE
-    UPDATE users
-    SET users.average_score = tot_weighted_score / tot_weight
-    WHERE users.id = user_id;
+    IF b != 0 THEN
+        SET result = a / b;
     END IF;
-END //
+    RETURN result;
+END $$
+DELIMITER ;
