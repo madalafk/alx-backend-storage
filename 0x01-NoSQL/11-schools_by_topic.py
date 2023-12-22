@@ -1,13 +1,19 @@
-#!/usr/bin/env pytho
+#!/usr/bin/env python3
 """
 Python function that returns the list of
 school having a specific topic
 """
-import pymongo
 
 
 def schools_by_topic(mongo_collection, topic):
     """
-    searching by topic
+    Return (list of school having a specific topic.)
     """
-    return mongo_collection.find({"topics": topic})
+    topic_filter = {
+        'topics': {
+            '$elemMatch': {
+                '$eq': topic,
+            },
+        },
+    }
+    return [doc for doc in mongo_collection.find(topic_filter)]
